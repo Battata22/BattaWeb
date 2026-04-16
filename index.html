@@ -4,13 +4,30 @@
   <meta charset="UTF-8">
   <title>Batta Web</title>
 </head>
-<body style="margin:0; background:#362364; display:flex; justify-content:center; align-items:center; height:100vh; font-family:sans-serif;">
+<body style="margin:0; background:#362364; display:flex; justify-content:center; align-items:center; height:100vh; font-family:sans-serif; flex-direction:column;">
 
-  <a href="J92@/6AdsA1029ZulKP27*8&" style="text-decoration:none;">
-    <button style="padding:15px 30px; font-size:18px; border:none; border-radius:8px; cursor:pointer;">
-      Lolo Puto
-    </button>
-  </a>
+  <button id="miBoton" onclick="mostrarLista()" 
+    style="padding:15px 30px; font-size:18px; border:none; border-radius:8px; cursor:pointer;">
+    Lolo Puto
+  </button>
+
+  <div id="contenido"></div>
+
+  <script>
+    function mostrarLista() {
+      // eliminar el botón
+      document.getElementById("miBoton").remove();
+
+      // mostrar lista
+      document.getElementById("contenido").innerHTML = `
+        <ul style="color:white; font-size:20px;">
+          <li>Texto 1</li>
+          <li>Texto 2</li>
+          <li>Texto 3</li>
+        </ul>
+      `;
+    }
+  </script>
 
 </body>
 </html>
