@@ -24,7 +24,7 @@
       const requestId = ++ultimaRequest;
 
       // 🔥 ahora usamos JSON local
-      const url = "Data.json?t=" + Date.now();
+      const url = "Data.JSON?t=" + Date.now();
 
       try {
         const res = await fetch(url, { cache: "no-store" });
