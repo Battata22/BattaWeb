@@ -1,13 +1,15 @@
 [
-  { "color": "#FF0000", "texto": "Lolo" },
-  { "color": "#FF8000", "texto": "Es" },
-  { "color": "#ffff00", "texto": "Super" },
-  { "color": "#00ff00", "texto": "Ultra" },
-  { "color": "#00FF80", "texto": "Omega" },
-  { "color": "#0000ff", "texto": "Hyper" },
-  { "color": "#8000FF", "texto": "Gay" },
-  { "color": "#FFFFFF", "texto": "Y" },
-  { "color": "#FFFFFF", "texto": "Trolazo" },
-  { "color": "#FFFFFF", "texto": "Bakea Bien" },
-  { "color": "", "texto": "Gil" }
+    { "color": "rgba(255,  255, 255, 0)", "texto": "J92@/6AdsA1029ZulKP27*8&-" },
+  { "color": "rgba(255,  255, 255, 0)", "texto": "29^Gn`@i03TN>q=~#S" },
+  { "color": "rgba(255, 0, 0, 1)", "texto": "Lolo" },
+  { "color": "rgba(255, 128, 0, 1)", "texto": "Es" },
+  { "color": "rgba(255, 255, 0, 1)", "texto": "Super" },
+  { "color": "rgba(0, 255, 0, 1)", "texto": "Ultra" },
+  { "color": "rgba(0, 255, 128, 1)", "texto": "Omega" },
+  { "color": "rgba(0, 0, 255, 1)", "texto": "Hyper" },
+  { "color": "rgba(255,  255, 255, 1)", "texto": "Gay" },
+  { "color": "rgba(255,  255, 255, 1)", "texto": "Y" },
+  { "color": "rgba(255,  255, 255, 1)", "texto": "Trolazo" },
+  { "color": "rgba(255,  255, 255, 1)", "texto": "Bakea Bien" },
+  { "color": "rgba(255,  255, 255, 1)", "texto": "Gil" }
 ]
