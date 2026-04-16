@@ -6,8 +6,8 @@
   { "color": "##00FF80", "texto": "Omega" }
   { "color": "##0000ff", "texto": "Hyper" }
   { "color": "##8000FF", "texto": "Gay" }
-  { "color": "", "texto": "Y" }
-  { "color": "", "texto": "Trolazo" }
-  { "color": "", "texto": "Bakea Bien" }
-  { "color": "", "texto": "Gil" }
+  { "color": "##FFFFFF", "texto": "Y" }
+  { "color": "##FFFFFF", "texto": "Trolazo" }
+  { "color": "##FFFFFF", "texto": "Bakea Bien" }
+  { "color": "##FFFFFF", "texto": "Gil" }
 ]
