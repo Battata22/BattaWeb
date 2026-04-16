@@ -1,13 +1,13 @@
 [
   { "color": "#FF0000", "texto": "Lolo" },
   { "color": "#FF8000", "texto": "Es" },
-  { "color": "#ffff00", "texto": "Super" }
-  { "color": "##00ff00", "texto": "Ultra" }
-  { "color": "##00FF80", "texto": "Omega" }
-  { "color": "##0000ff", "texto": "Hyper" }
-  { "color": "##8000FF", "texto": "Gay" }
-  { "color": "##FFFFFF", "texto": "Y" }
-  { "color": "##FFFFFF", "texto": "Trolazo" }
-  { "color": "##FFFFFF", "texto": "Bakea Bien" }
-  { "color": "##FFFFFF", "texto": "Gil" }
+  { "color": "#ffff00", "texto": "Super" },
+  { "color": "##00ff00", "texto": "Ultra" },
+  { "color": "##00FF80", "texto": "Omega" },
+  { "color": "##0000ff", "texto": "Hyper" },
+  { "color": "##8000FF", "texto": "Gay" },
+  { "color": "##FFFFFF", "texto": "Y" },
+  { "color": "##FFFFFF", "texto": "Trolazo" },
+  { "color": "##FFFFFF", "texto": "Bakea Bien" },
+  { "color": "", "texto": "Gil" }
 ]
