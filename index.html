@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="es">
 <head>
   <meta charset="UTF-8">
@@ -23,8 +23,8 @@
 
       const requestId = ++ultimaRequest;
 
-      const urlBase = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS4iJQFriUKvVk8X3rPNB73zSQTXmfokqxrajS84qcrsmJ6J3YkIIbjw-pgzJg3aFfwsTFtK2y7wlSr/pub?gid=0&single=true&output=csv";
-      const url = urlBase + "&t=" + Date.now();
+      // 🔥 ahora usamos JSON local
+      const url = "Data.json?t=" + Date.now();
 
       try {
         const res = await fetch(url, { cache: "no-store" });
@@ -33,27 +33,20 @@
           throw new Error("HTTP " + res.status);
         }
 
-        const texto = await res.text();
+        const data = await res.json();
 
         // 🔥 evita que respuestas viejas pisen la nueva
         if (requestId !== ultimaRequest) return;
 
-        console.log("CSV RAW:", texto);
-
-        const filas = texto
-          .split("\n")
-          .map(f => f.trim())
-          .filter(f => f !== "");
+        console.log("JSON:", data);
 
         let listaHTML = `
           <ul style="list-style:none; padding:0; margin:0; text-align:center; font-size:20px;">
         `;
 
-        filas.forEach(fila => {
-          const columnas = fila.includes(";") ? fila.split(";") : fila.split(",");
-
-          const color = (columnas[0] || "").trim();
-          const textoFila = (columnas[1] || "").trim();
+        data.forEach(item => {
+          const color = (item.color || "").trim();
+          const textoFila = (item.texto || "").trim();
 
           if (textoFila) {
             listaHTML += `<li style="color:${color || "white"}; margin:5px 0;">${textoFila}</li>`;

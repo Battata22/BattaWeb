@@ -1,0 +1,5 @@
+[
+  { "color": "red", "texto": "Hola" },
+  { "color": "blue", "texto": "Mundo" },
+  { "color": "yellow", "texto": "Probando" }
+]
