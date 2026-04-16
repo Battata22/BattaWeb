@@ -1,82 +1,92 @@
-<!DOCTYPE html> 
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <title>Batta Web</title>
-</head>
+<script>
+  let ultimaRequest = 0;
 
-<body style="margin:0; background:#362364; display:flex; justify-content:center; align-items:center; height:100vh; font-family:sans-serif; flex-direction:column;">
+  function fadeIn(element) {
+    element.style.opacity = 0;
+    element.style.transition = "opacity 0.4s ease";
+    requestAnimationFrame(() => {
+      element.style.opacity = 1;
+    });
+  }
 
-  <button id="miBoton" onclick="mostrarLista()" 
-    style="padding:15px 30px; font-size:18px; border:none; border-radius:8px; cursor:pointer;">
-    Lolo Puto
-  </button>
+  function fadeOut(element, callback) {
+    element.style.opacity = 1;
+    element.style.transition = "opacity 0.3s ease";
+    element.style.opacity = 0;
+    setTimeout(callback, 300);
+  }
 
-  <div id="contenido" style="display:flex; flex-direction:column; align-items:center;"></div>
+  async function mostrarLista() {
+    const boton = document.getElementById("miBoton");
 
-  <script>
-    let ultimaRequest = 0;
-
-    async function mostrarLista() {
-      const boton = document.getElementById("miBoton");
+    fadeOut(boton, () => {
       boton.style.display = "none";
+    });
 
-      const requestId = ++ultimaRequest;
+    const requestId = ++ultimaRequest;
+    const url = "data.json?t=" + Date.now();
 
-      // 🔥 ahora usamos JSON local
-      const url = "Data.JSON?t=" + Date.now();
+    try {
+      const res = await fetch(url, { cache: "no-store" });
 
-      try {
-        const res = await fetch(url, { cache: "no-store" });
+      if (!res.ok) throw new Error("HTTP " + res.status);
 
-        if (!res.ok) {
-          throw new Error("HTTP " + res.status);
-        }
+      const data = await res.json();
 
-        const data = await res.json();
+      if (requestId !== ultimaRequest) return;
 
-        // 🔥 evita que respuestas viejas pisen la nueva
-        if (requestId !== ultimaRequest) return;
+      const contenedor = document.getElementById("contenido");
+      contenedor.innerHTML = "";
 
-        console.log("JSON:", data);
+      const ul = document.createElement("ul");
+      ul.style.listStyle = "none";
+      ul.style.padding = "0";
+      ul.style.margin = "0";
+      ul.style.textAlign = "center";
+      ul.style.fontSize = "20px";
+      ul.style.opacity = 0;
 
-        let listaHTML = `
-          <ul style="list-style:none; padding:0; margin:0; text-align:center; font-size:20px;">
-        `;
+      data.forEach(item => {
+        const li = document.createElement("li");
+        li.textContent = (item.texto || "").trim();
+        li.style.color = (item.color || "white").trim();
+        li.style.margin = "5px 0";
+        ul.appendChild(li);
+      });
 
-        data.forEach(item => {
-          const color = (item.color || "").trim();
-          const textoFila = (item.texto || "").trim();
+      const volverBtn = document.createElement("button");
+      volverBtn.textContent = "Volver";
+      volverBtn.onclick = volverInicio;
+      volverBtn.style.marginTop = "20px";
+      volverBtn.style.padding = "10px 20px";
+      volverBtn.style.fontSize = "16px";
+      volverBtn.style.border = "none";
+      volverBtn.style.borderRadius = "8px";
+      volverBtn.style.cursor = "pointer";
+      volverBtn.style.opacity = 0;
 
-          if (textoFila) {
-            listaHTML += `<li style="color:${color || "white"}; margin:5px 0;">${textoFila}</li>`;
-          }
-        });
+      contenedor.appendChild(ul);
+      contenedor.appendChild(volverBtn);
 
-        listaHTML += `</ul>`;
+      fadeIn(ul);
+      fadeIn(volverBtn);
 
-        listaHTML += `
-          <button onclick="volverInicio()" 
-            style="margin-top:20px; padding:10px 20px; font-size:16px; border:none; border-radius:8px; cursor:pointer;">
-            Volver
-          </button>
-        `;
-
-        document.getElementById("contenido").innerHTML = listaHTML;
-
-      } catch (err) {
-        console.error(err);
-
-        document.getElementById("contenido").innerHTML =
-          "<p style='color:white;'>Error cargando datos: " + err.message + "</p>";
-      }
+    } catch (err) {
+      document.getElementById("contenido").innerHTML =
+        "<p style='color:white;'>Error: " + err.message + "</p>";
     }
+  }
 
-    function volverInicio() {
-      document.getElementById("contenido").innerHTML = "";
-      document.getElementById("miBoton").style.display = "block";
-    }
-  </script>
+  function volverInicio() {
+    const contenedor = document.getElementById("contenido");
+    const boton = document.getElementById("miBoton");
 
-</body>
-</html>
+    fadeOut(contenedor, () => {
+      contenedor.innerHTML = "";
+      contenedor.style.opacity = 1;
+
+      boton.style.display = "block";
+      fadeIn(boton);
+    });
+  }
+</script>
