@@ -15,17 +15,30 @@
 
   <script>
     function mostrarLista() {
-      // eliminar el botón
-      document.getElementById("miBoton").remove();
+      // ocultar botón
+      document.getElementById("miBoton").style.display = "none";
 
-      // mostrar lista
+      // mostrar lista + botón volver
       document.getElementById("contenido").innerHTML = `
-        <ul style="color:white; font-size:20px;">
+        <ul style="color:white; font-size:20px; text-align:center;">
           <li>Texto 1</li>
           <li>Texto 2</li>
           <li>Texto 3</li>
         </ul>
+
+        <button onclick="volverInicio()" 
+          style="margin-top:20px; padding:10px 20px; font-size:16px; border:none; border-radius:8px; cursor:pointer;">
+          Volver
+        </button>
       `;
+    }
+
+    function volverInicio() {
+      // limpiar contenido
+      document.getElementById("contenido").innerHTML = "";
+
+      // mostrar botón original
+      document.getElementById("miBoton").style.display = "block";
     }
   </script>
 
