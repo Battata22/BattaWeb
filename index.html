@@ -15,20 +15,28 @@
   <div id="contenido" style="display:flex; flex-direction:column; align-items:center;"></div>
 
   <script>
-    async function mostrarLista() {
-      document.getElementById("miBoton").style.display = "none";
+    let ultimaRequest = 0;
 
-      const url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS4iJQFriUKvVk8X3rPNB73zSQTXmfokqxrajS84qcrsmJ6J3YkIIbjw-pgzJg3aFfwsTFtK2y7wlSr/pub?gid=0&single=true&output=csv";
+    async function mostrarLista() {
+      const boton = document.getElementById("miBoton");
+      boton.style.display = "none";
+
+      const requestId = ++ultimaRequest;
+
+      const urlBase = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS4iJQFriUKvVk8X3rPNB73zSQTXmfokqxrajS84qcrsmJ6J3YkIIbjw-pgzJg3aFfwsTFtK2y7wlSr/pub?gid=0&single=true&output=csv";
+      const url = urlBase + "&t=" + Date.now();
 
       try {
-        const res = await fetch(url);
-        cache: "no-store"
+        const res = await fetch(url, { cache: "no-store" });
 
         if (!res.ok) {
-          throw new Error("No se pudo cargar el CSV (HTTP " + res.status + ")");
+          throw new Error("HTTP " + res.status);
         }
 
         const texto = await res.text();
+
+        // 🔥 evita que respuestas viejas pisen la nueva
+        if (requestId !== ultimaRequest) return;
 
         console.log("CSV RAW:", texto);
 
@@ -42,15 +50,13 @@
         `;
 
         filas.forEach(fila => {
-
-          // 🔥 soporta coma o punto y coma
           const columnas = fila.includes(";") ? fila.split(";") : fila.split(",");
 
           const color = (columnas[0] || "").trim();
-          const texto = (columnas[1] || "").trim();
+          const textoFila = (columnas[1] || "").trim();
 
-          if (texto) {
-            listaHTML += `<li style="color:${color || "white"}; margin:5px 0;">${texto}</li>`;
+          if (textoFila) {
+            listaHTML += `<li style="color:${color || "white"}; margin:5px 0;">${textoFila}</li>`;
           }
         });
 
@@ -67,6 +73,7 @@
 
       } catch (err) {
         console.error(err);
+
         document.getElementById("contenido").innerHTML =
           "<p style='color:white;'>Error cargando datos: " + err.message + "</p>";
       }
