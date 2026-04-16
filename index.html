@@ -11,24 +11,22 @@
     Lolo Puto
   </button>
 
-  <div id="contenido"></div>
+  <div id="contenido" style="display:flex; flex-direction:column; align-items:center;"></div>
 
   <script>
     function mostrarLista() {
-      // ocultar botón
       document.getElementById("miBoton").style.display = "none";
 
-      // mostrar lista + botón volver
       document.getElementById("contenido").innerHTML = `
-      <ul style="color:white; font-size:20px; text-align:center;">
-        <ul style="color: #FF0000;">lolo</ul>
-        <ul style="color: #FF8000;">es</ul>
-        <ul style="color: #ffff00;">super</ul>
-        <ul style="color: #00ff00;">ultra</ul>
-        <ul style="color: #00FF80;">omega</ul>
-        <ul style="color: #0000ff;">hyper</ul>
-        <ul style="color: #8000FF;">trolo</ul>
-      </ul>
+        <ul style="list-style:none; padding:0; margin:0; text-align:center; font-size:20px;">
+          <li style="color:#FF0000;">lolo</li>
+          <li style="color:#FF8000;">es</li>
+          <li style="color:#ffff00;">super</li>
+          <li style="color:#00ff00;">ultra</li>
+          <li style="color:#00FF80;">omega</li>
+          <li style="color:#0000ff;">hyper</li>
+          <li style="color:#8000FF;">trolo</li>
+        </ul>
 
         <button onclick="volverInicio()" 
           style="margin-top:20px; padding:10px 20px; font-size:16px; border:none; border-radius:8px; cursor:pointer;">
@@ -38,10 +36,7 @@
     }
 
     function volverInicio() {
-      // limpiar contenido
       document.getElementById("contenido").innerHTML = "";
-
-      // mostrar botón original
       document.getElementById("miBoton").style.display = "block";
     }
   </script>
