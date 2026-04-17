@@ -1,0 +1,22 @@
+    body{
+      background-color: rgba(147, 112, 216, 1);
+    }
+
+    h1{
+      color: green;
+    }
+
+    p{
+      background-color: gray; 
+      color: antiquewhite;
+    }
+
+    #p1{
+        font-size: 40px;
+    }
+    #p2{
+        color: red;
+    }
+    #p3{
+        color: cadetblue;
+    }

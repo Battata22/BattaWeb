@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Batta Web</title>
+</head>
+
+<body style="margin:0; background:#362364; display:flex; justify-content:center; align-items:center; height:100vh; font-family:sans-serif; flex-direction:column;">
+
+  <button id="miBoton" onclick="mostrarLista()" 
+    style="padding:15px 30px; font-size:18px; border:none; border-radius:8px; cursor:pointer;">
+    Mostrar Lista
+  </button>
+
+  <div id="contenido" style="display:flex; flex-direction:column; align-items:center;"></div>
+
+  <script>
+    async function mostrarLista() {
+      const boton = document.getElementById("miBoton");
+      const contenedor = document.getElementById("contenido");
+
+      boton.style.display = "none";
+      contenedor.innerHTML = "<p style='color:white;'>Cargando...</p>";
+
+      try {
+        const res = await fetch("Data.json");
+
+        if (!res.ok) throw new Error("HTTP " + res.status);
+
+        const data = await res.json();
+
+        contenedor.innerHTML = "";
+
+        const ul = document.createElement("ul");
+        ul.style.listStyle = "none";
+        ul.style.padding = "0";
+        ul.style.margin = "0";
+        ul.style.textAlign = "center";
+        ul.style.fontSize = "20px";
+
+        data.forEach(item => {
+          const li = document.createElement("li");
+          li.textContent = item.texto || "";
+          li.style.color = item.color || "white";
+          li.style.margin = "5px 0";
+          ul.appendChild(li);
+        });
+
+        const volverBtn = document.createElement("button");
+        volverBtn.textContent = "Volver";
+        volverBtn.onclick = volverInicio;
+        volverBtn.style.marginTop = "20px";
+        volverBtn.style.padding = "10px 20px";
+        volverBtn.style.fontSize = "16px";
+        volverBtn.style.border = "none";
+        volverBtn.style.borderRadius = "8px";
+        volverBtn.style.cursor = "pointer";
+
+        contenedor.appendChild(ul);
+        contenedor.appendChild(volverBtn);
+
+      } catch (err) {
+        contenedor.innerHTML =
+          "<p style='color:white;'>Error: " + err.message + "</p>";
+        console.error(err);
+      }
+    }
+
+    function volverInicio() {
+      document.getElementById("contenido").innerHTML = "";
+      document.getElementById("miBoton").style.display = "block";
+    }
+  </script>
+
+</body>
+</html>
