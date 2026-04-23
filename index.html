@@ -1,23 +1,544 @@
 <!DOCTYPE html>
-
-<html>
-
+<html lang="en">
 <head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>HomeServer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  <title>My Web Page</title>  
-  <link rel="stylesheet" href="style.css">
+    :root {
+      --bg: #080810;
+      --surface: #0f0f1a;
+      --card: #13131f;
+      --border: #1e1e30;
+      --border-light: #2a2a40;
+      --accent: #5b8dee;
+      --accent2: #ee5b8d;
+      --accent3: #5beeb0;
+      --text: #e8e8f2;
+      --muted: #5a5a78;
+      --sans: 'Outfit', sans-serif;
+      --mono: 'JetBrains Mono', monospace;
+    }
 
+    html, body { height: 100%; background: var(--bg); color: var(--text); font-family: var(--sans); overflow-x: hidden; }
+
+    body::after {
+      content: '';
+      position: fixed; inset: 0; pointer-events: none; z-index: 9999;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+      background-size: 150px; opacity: .4;
+    }
+
+    .blob { position: fixed; border-radius: 50%; filter: blur(130px); pointer-events: none; z-index: 0; }
+    .blob-1 { width: 500px; height: 500px; background: #5b8dee22; top: -150px; left: -100px; }
+    .blob-2 { width: 400px; height: 400px; background: #ee5b8d18; bottom: -100px; right: -100px; }
+
+    /* NAV */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 48px; height: 64px;
+      background: #08081088; backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo {
+      display: flex; align-items: center; gap: 10px;
+      font-size: .9rem; font-weight: 700; letter-spacing: .06em;
+      color: var(--text); text-decoration: none;
+    }
+    .nav-logo-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: var(--accent); box-shadow: 0 0 10px var(--accent);
+      animation: blink 3s ease-in-out infinite;
+    }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+    .nav-buttons { display: flex; align-items: center; gap: 8px; }
+
+    .nav-btn {
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 20px; border-radius: 8px;
+      font-family: var(--sans); font-size: .875rem; font-weight: 600;
+      border: 1px solid var(--border); background: transparent;
+      color: var(--muted); cursor: pointer; text-decoration: none;
+      transition: all .2s; letter-spacing: .02em;
+      position: relative; overflow: hidden;
+    }
+    .nav-btn::before {
+      content: ''; position: absolute; inset: 0;
+      background: var(--btn-glow, var(--accent)); opacity: 0; transition: opacity .2s;
+    }
+    .nav-btn:hover { color: var(--text); border-color: var(--btn-color, var(--accent)); }
+    .nav-btn:hover::before { opacity: .08; }
+    .nav-btn span, .nav-btn svg { position: relative; z-index: 1; }
+    .nav-btn svg { flex-shrink: 0; }
+
+    .nav-btn-storage { --btn-color: var(--accent); --btn-glow: var(--accent); }
+    .nav-btn-vm      { --btn-color: var(--accent3); --btn-glow: var(--accent3); }
+    .nav-btn-me      { --btn-color: var(--accent2); --btn-glow: var(--accent2); }
+    .nav-btn-admin   { --btn-color: #f0c070; --btn-glow: #f0c070; font-family: var(--mono); font-size: .75rem; }
+    .nav-btn-storage:hover { color: var(--accent); }
+    .nav-btn-vm:hover      { color: var(--accent3); }
+    .nav-btn-me:hover      { color: var(--accent2); }
+    .nav-btn-admin:hover   { color: #f0c070; }
+
+    /* MAIN */
+    main {
+      position: relative; z-index: 1;
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 80px 24px 60px; text-align: center;
+    }
+
+    .hero-eyebrow {
+      font-family: var(--mono); font-size: .7rem; letter-spacing: .2em;
+      color: var(--accent); text-transform: uppercase; margin-bottom: 20px;
+      opacity: 0; animation: fadeUp .6s .2s forwards;
+    }
+    .hero-title {
+      font-size: clamp(2.8rem, 7vw, 5rem); font-weight: 900;
+      line-height: 1.0; letter-spacing: -.03em; margin-bottom: 24px;
+      opacity: 0; animation: fadeUp .6s .35s forwards;
+    }
+    .hero-title .line2 {
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .hero-sub {
+      font-size: 1rem; color: var(--muted); max-width: 400px;
+      line-height: 1.7; margin-bottom: 60px;
+      opacity: 0; animation: fadeUp .6s .5s forwards;
+    }
+    .hero-cards {
+      display: flex; gap: 16px; flex-wrap: wrap; justify-content: center;
+      opacity: 0; animation: fadeUp .6s .65s forwards;
+    }
+    .hero-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 16px; padding: 28px 32px; width: 200px;
+      cursor: pointer; text-decoration: none;
+      display: flex; flex-direction: column; align-items: center; gap: 14px;
+      transition: transform .25s, border-color .25s, box-shadow .25s;
+      position: relative; overflow: hidden;
+    }
+    .hero-card::before {
+      content: ''; position: absolute; inset: 0;
+      background: var(--card-glow); opacity: 0; transition: opacity .3s;
+    }
+    .hero-card:hover { transform: translateY(-8px); box-shadow: 0 24px 60px #0008; }
+    .hero-card:hover::before { opacity: 1; }
+    .hero-card:hover .card-icon { transform: scale(1.15); }
+    .hero-card-storage { --card-glow: linear-gradient(135deg, #5b8dee15, transparent); }
+    .hero-card-storage:hover { border-color: var(--accent); }
+    .hero-card-vm      { --card-glow: linear-gradient(135deg, #5beeb015, transparent); }
+    .hero-card-vm:hover { border-color: var(--accent3); }
+    .hero-card-me      { --card-glow: linear-gradient(135deg, #ee5b8d15, transparent); }
+    .hero-card-me:hover { border-color: var(--accent2); }
+    .card-icon { font-size: 2rem; transition: transform .3s; position: relative; z-index: 1; }
+    .card-label {
+      font-size: .8rem; font-weight: 600; letter-spacing: .1em;
+      text-transform: uppercase; color: var(--muted);
+      font-family: var(--mono); position: relative; z-index: 1; transition: color .2s;
+    }
+    .hero-card-storage:hover .card-label { color: var(--accent); }
+    .hero-card-vm:hover .card-label      { color: var(--accent3); }
+    .hero-card-me:hover .card-label      { color: var(--accent2); }
+
+    @keyframes fadeUp {
+      from { opacity:0; transform:translateY(20px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+
+    /* OVERLAYS */
+    .panel-overlay {
+      position: fixed; inset: 0; background: #000b;
+      backdrop-filter: blur(8px); z-index: 200;
+      opacity: 0; pointer-events: none; transition: opacity .3s;
+      display: flex; align-items: center; justify-content: center; padding: 24px;
+    }
+    .panel-overlay.open { opacity: 1; pointer-events: all; }
+
+    .panel {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 24px; width: 100%; max-width: 560px;
+      max-height: 85vh; overflow-y: auto;
+      transform: translateY(24px) scale(.97); transition: transform .3s;
+      scrollbar-width: thin; scrollbar-color: var(--border) transparent;
+    }
+    .panel-overlay.open .panel { transform: translateY(0) scale(1); }
+
+    .admin-panel {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 24px; width: 100%; max-width: 680px;
+      max-height: 90vh; overflow-y: auto;
+      transform: translateY(24px) scale(.97); transition: transform .3s;
+      scrollbar-width: thin; scrollbar-color: var(--border) transparent;
+    }
+    .panel-overlay.open .admin-panel { transform: translateY(0) scale(1); }
+
+    .panel-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 28px 32px 20px; border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; background: var(--card); z-index: 1;
+    }
+    .panel-title { font-size: 1.1rem; font-weight: 700; }
+    .panel-close {
+      background: var(--border); border: none; cursor: pointer;
+      width: 30px; height: 30px; border-radius: 8px; color: var(--muted);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; transition: background .2s;
+    }
+    .panel-close:hover { background: var(--border-light); color: var(--text); }
+    .panel-body { padding: 28px 32px; }
+
+    .tags-section { margin-bottom: 28px; }
+    .tags-section-label {
+      font-family: var(--mono); font-size: .68rem; letter-spacing: .15em;
+      color: var(--muted); text-transform: uppercase; margin-bottom: 12px;
+    }
+    .tags-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+    .tag {
+      padding: 6px 14px; border-radius: 99px;
+      font-size: .8rem; font-weight: 500; border: 1px solid; letter-spacing: .02em;
+    }
+
+    /* ADMIN */
+    .admin-section-title {
+      font-family: var(--mono); font-size: .7rem; letter-spacing: .15em;
+      color: #f0c070; text-transform: uppercase; margin-bottom: 12px;
+    }
+    .admin-row { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; }
+    .admin-input {
+      flex: 1; background: var(--surface); border: 1px solid var(--border);
+      border-radius: 8px; padding: 9px 12px; color: var(--text);
+      font-family: var(--sans); font-size: .85rem; transition: border-color .2s; width: 100%;
+    }
+    .admin-input:focus { outline: none; border-color: #f0c07060; }
+    .admin-input::placeholder { color: var(--muted); }
+    .color-input {
+      width: 40px; height: 38px; border-radius: 8px; border: 1px solid var(--border);
+      background: var(--surface); cursor: pointer; padding: 2px; flex-shrink: 0;
+    }
+    .admin-btn {
+      padding: 8px 16px; border-radius: 8px; border: none; cursor: pointer;
+      font-family: var(--sans); font-size: .8rem; font-weight: 600; transition: filter .2s;
+    }
+    .admin-btn:hover { filter: brightness(1.2); }
+    .admin-btn-add { background: #5b8dee20; color: var(--accent); border: 1px solid #5b8dee40; }
+    .admin-btn-remove {
+      background: #ee5b5b20; color: #ee5b5b; border: 1px solid #ee5b5b40;
+      width: 34px; height: 38px; padding: 0;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .admin-btn-save { background: linear-gradient(135deg, #f0c070, #e0a040); color: #1a1000; font-weight: 700; padding: 10px 24px; }
+    .admin-btn-login { background: linear-gradient(135deg, #f0c070, #e0a040); color: #1a1000; font-weight: 700; padding: 11px 24px; width: 100%; margin-top: 8px; border-radius: 10px; font-size: .9rem; }
+    .admin-field-label { font-size: .72rem; color: var(--muted); font-family: var(--mono); letter-spacing: .12em; margin-bottom: 6px; display: block; text-transform: uppercase; }
+    .admin-field { margin-bottom: 16px; }
+    .admin-login-error { color: #ee5b5b; font-size: .8rem; margin-top: 8px; display: none; }
+
+    footer {
+      position: relative; z-index: 1; text-align: center; padding: 24px;
+      border-top: 1px solid var(--border);
+      font-family: var(--mono); font-size: .68rem; color: var(--muted);
+    }
+
+    @media (max-width: 520px) {
+      nav { padding: 0 20px; }
+      .nav-btn .label { display: none; }
+      .panel-body, .panel-header { padding-left: 20px; padding-right: 20px; }
+    }
+  </style>
 </head>
-
 <body>
 
-  <h1>Welcome to My Web Page</h1>
+<div class="blob blob-1"></div>
+<div class="blob blob-2"></div>
 
-  <p>This is a simple web page created as an example.</p>
-  <p>This is a simple web page created as an example.</p>
-  <p>This is a simple web page created as an example.</p>
-  <p>This is a simple web page created as an example.</p>
+<nav>
+  <a class="nav-logo" href="#">
+    <div class="nav-logo-dot"></div>
+    <span id="navSiteName">HomeServer</span>
+  </a>
+  <div class="nav-buttons" id="navButtons"></div>
+</nav>
 
+<main>
+  <p class="hero-eyebrow">Private Infrastructure</p>
+  <h1 class="hero-title">Your server.<br><span class="line2">Your rules.</span></h1>
+  <p class="hero-sub">Access your files, machines, and personal space from anywhere in the world.</p>
+  <div class="hero-cards">
+    <a class="hero-card hero-card-storage" id="cardStorage" href="#" target="_blank" rel="noopener">
+      <div class="card-icon">☁️</div>
+      <div class="card-label">Storage</div>
+    </a>
+    <a class="hero-card hero-card-vm" id="cardVM" href="#" target="_blank" rel="noopener">
+      <div class="card-icon">🖥️</div>
+      <div class="card-label">VM</div>
+    </a>
+    <div class="hero-card hero-card-me" onclick="openMe()">
+      <div class="card-icon">👤</div>
+      <div class="card-label">Me</div>
+    </div>
+  </div>
+</main>
+
+<footer>HomeServer &nbsp;·&nbsp; TrueNAS Scale</footer>
+
+<!-- ME PANEL -->
+<div class="panel-overlay" id="meOverlay" onclick="if(event.target===this)closeMe()">
+  <div class="panel">
+    <div class="panel-header">
+      <span class="panel-title" id="meTitle">About</span>
+      <button class="panel-close" onclick="closeMe()">✕</button>
+    </div>
+    <div class="panel-body" id="meBody"></div>
+  </div>
+</div>
+
+<!-- ADMIN PANEL -->
+<div class="panel-overlay" id="adminOverlay" onclick="if(event.target===this)closeAdmin()">
+  <div class="admin-panel" id="adminPanelInner"></div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════
+//  DEFAULT CONFIG — edit these defaults or use the
+//  Admin Panel in the browser to change everything.
+// ══════════════════════════════════════════════════
+const CONFIG_KEY = 'homeserver_config';
+
+const DEFAULT_CONFIG = {
+  adminPassword: '314159265!#!',          // ← CHANGE THIS
+  siteName: 'Batta Web',
+  storageUrl: 'https://cloud.Battaweb.com',
+  vmUrl: 'http://truenas.local:8080/guacamole',
+  meTitle: 'Batta',
+  meSections: [
+    {
+      label: 'Skills',
+      tags: [
+        { text: 'TrueNAS',     color: '#5b8dee', bg: '#5b8dee18' },
+        { text: 'Nextcloud',   color: '#5beeb0', bg: '#5beeb018' },
+        { text: 'Networking',  color: '#ee5b8d', bg: '#ee5b8d18' },
+        { text: 'Self-hosted', color: '#f0c070', bg: '#f0c07018' },
+      ]
+    },
+    {
+      label: 'Links',
+      tags: [
+        { text: 'GitHub',    color: '#aaaaff', bg: '#aaaaff15' },
+        { text: 'Portfolio', color: '#5beeb0', bg: '#5beeb015' },
+      ]
+    },
+    {
+      label: 'Status',
+      tags: [
+        { text: '🟢 Online', color: '#5beeb0', bg: '#5beeb018' },
+      ]
+    }
+  ]
+};
+
+// ── State ──
+let cfg = (() => {
+  try {
+    const s = localStorage.getItem(CONFIG_KEY);
+    return s ? Object.assign({}, DEFAULT_CONFIG, JSON.parse(s)) : Object.assign({}, DEFAULT_CONFIG);
+  } catch { return Object.assign({}, DEFAULT_CONFIG); }
+})();
+
+let adminLoggedIn = false;
+
+function saveConfig() { localStorage.setItem(CONFIG_KEY, JSON.stringify(cfg)); }
+
+// ── Render Nav ──
+function renderNav() {
+  document.getElementById('navSiteName').textContent = cfg.siteName || 'HomeServer';
+  document.getElementById('cardStorage').href = cfg.storageUrl;
+  document.getElementById('cardVM').href = cfg.vmUrl;
+
+  document.getElementById('navButtons').innerHTML = `
+    <a class="nav-btn nav-btn-storage" href="${cfg.storageUrl}" target="_blank" rel="noopener">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      <span class="label">Storage</span>
+    </a>
+    <a class="nav-btn nav-btn-vm" href="${cfg.vmUrl}" target="_blank" rel="noopener">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+      <span class="label">VM</span>
+    </a>
+    <button class="nav-btn nav-btn-me" onclick="openMe()">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+      <span class="label">Me</span>
+    </button>
+    <button class="nav-btn nav-btn-admin" onclick="openAdmin()" title="Admin Panel">
+      <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2l2 7h7l-5.5 4 2 7L12 16l-5.5 4 2-7L3 9h7z"/></svg>
+      <span>Batta</span>
+    </button>
+  `;
+}
+
+// ── Me Panel ──
+function openMe() {
+  document.getElementById('meTitle').textContent = cfg.meTitle;
+  document.getElementById('meBody').innerHTML = cfg.meSections.map(sec => `
+    <div class="tags-section">
+      <div class="tags-section-label">${sec.label}</div>
+      <div class="tags-grid">
+        ${sec.tags.map(t => `<span class="tag" style="color:${t.color};background:${t.bg};border-color:${t.color}40">${t.text}</span>`).join('')}
+      </div>
+    </div>
+  `).join('');
+  document.getElementById('meOverlay').classList.add('open');
+}
+function closeMe() { document.getElementById('meOverlay').classList.remove('open'); }
+
+// ── Admin Panel ──
+function openAdmin() {
+  adminLoggedIn ? renderAdminEditor() : renderAdminLogin();
+  document.getElementById('adminOverlay').classList.add('open');
+}
+function closeAdmin() {
+  document.getElementById('adminOverlay').classList.remove('open');
+}
+
+function renderAdminLogin() {
+  document.getElementById('adminPanelInner').innerHTML = `
+    <div class="panel-header">
+      <span class="panel-title" style="color:#f0c070">⚙ Admin Panel</span>
+      <button class="panel-close" onclick="closeAdmin()">✕</button>
+    </div>
+    <div style="padding:32px">
+      <div style="font-size:.85rem;color:var(--muted);margin-bottom:24px">Enter your admin password to edit site settings.</div>
+      <div class="admin-field">
+        <label class="admin-field-label">Password</label>
+        <input class="admin-input" type="password" id="adminPassInput" placeholder="••••••••" onkeydown="if(event.key==='Enter')tryLogin()"/>
+        <div class="admin-login-error" id="loginErr">Incorrect password. Try again.</div>
+      </div>
+      <button class="admin-btn admin-btn-login" onclick="tryLogin()">Sign in →</button>
+    </div>
+  `;
+  setTimeout(() => document.getElementById('adminPassInput')?.focus(), 80);
+}
+
+function tryLogin() {
+  if (document.getElementById('adminPassInput').value === cfg.adminPassword) {
+    adminLoggedIn = true;
+    renderAdminEditor();
+  } else {
+    document.getElementById('loginErr').style.display = 'block';
+  }
+}
+
+function renderAdminEditor() {
+  document.getElementById('adminPanelInner').innerHTML = `
+    <div class="panel-header">
+      <span class="panel-title" style="color:#f0c070">⚙ Admin Panel</span>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button class="admin-btn admin-btn-save" onclick="applyAndSave()">💾 Save</button>
+        <button class="panel-close" onclick="closeAdmin()">✕</button>
+      </div>
+    </div>
+    <div style="padding:24px 32px 32px;display:flex;flex-direction:column;gap:24px">
+
+      <div>
+        <div class="admin-section-title">Site Settings</div>
+        <div class="admin-field">
+          <label class="admin-field-label">Site Name</label>
+          <input class="admin-input" id="cfgSiteName" value="${cfg.siteName}" placeholder="HomeServer"/>
+        </div>
+        <div class="admin-field">
+          <label class="admin-field-label">Storage URL</label>
+          <input class="admin-input" id="cfgStorageUrl" value="${cfg.storageUrl}" placeholder="https://cloud.yourdomain.com"/>
+        </div>
+        <div class="admin-field">
+          <label class="admin-field-label">VM URL</label>
+          <input class="admin-input" id="cfgVmUrl" value="${cfg.vmUrl}" placeholder="http://..."/>
+        </div>
+      </div>
+
+      <div>
+        <div class="admin-section-title">Me Panel</div>
+        <div class="admin-field">
+          <label class="admin-field-label">Display Name</label>
+          <input class="admin-input" id="cfgMeTitle" value="${cfg.meTitle}" placeholder="Your name"/>
+        </div>
+        <div class="admin-section-title" style="margin-top:8px">Sections & Tags</div>
+        <div id="sectionsEditor"></div>
+        <button class="admin-btn admin-btn-add" onclick="addSection()" style="margin-top:4px">+ Add section</button>
+      </div>
+
+      <div style="border-top:1px solid var(--border);padding-top:20px">
+        <div class="admin-section-title">Security</div>
+        <div class="admin-field">
+          <label class="admin-field-label">New Admin Password (leave blank to keep current)</label>
+          <input class="admin-input" id="cfgNewPass" type="password" placeholder="New password"/>
+        </div>
+      </div>
+
+    </div>
+  `;
+  renderSectionsEditor();
+}
+
+function renderSectionsEditor() {
+  const el = document.getElementById('sectionsEditor');
+  if (!el) return;
+  el.innerHTML = cfg.meSections.map((sec, si) => `
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px">
+      <div class="admin-row" style="margin-bottom:10px">
+        <input class="admin-input" value="${sec.label}" placeholder="Section label"
+          onchange="cfg.meSections[${si}].label=this.value"/>
+        <button class="admin-btn admin-btn-remove" onclick="removeSection(${si})" title="Remove section">✕</button>
+      </div>
+      <div id="tagsEditor_${si}"></div>
+      <button class="admin-btn admin-btn-add" onclick="addTag(${si})" style="margin-top:6px;font-size:.73rem;padding:6px 12px">+ Add tag</button>
+    </div>
+  `).join('');
+  cfg.meSections.forEach((_, si) => renderTagsEditor(si));
+}
+
+function renderTagsEditor(si) {
+  const el = document.getElementById(`tagsEditor_${si}`);
+  if (!el) return;
+  el.innerHTML = cfg.meSections[si].tags.map((tag, ti) => `
+    <div class="admin-row">
+      <input class="admin-input" value="${tag.text}" placeholder="Tag text"
+        onchange="cfg.meSections[${si}].tags[${ti}].text=this.value"/>
+      <input type="color" class="color-input" value="${tag.color}" title="Tag color"
+        onchange="cfg.meSections[${si}].tags[${ti}].color=this.value;cfg.meSections[${si}].tags[${ti}].bg=this.value+'18'"/>
+      <button class="admin-btn admin-btn-remove" onclick="removeTag(${si},${ti})" title="Remove tag">✕</button>
+    </div>
+  `).join('');
+}
+
+function addSection() {
+  cfg.meSections.push({ label: 'New Section', tags: [{ text: 'Tag', color: '#5b8dee', bg: '#5b8dee18' }] });
+  renderSectionsEditor();
+}
+function removeSection(si) { cfg.meSections.splice(si, 1); renderSectionsEditor(); }
+function addTag(si) { cfg.meSections[si].tags.push({ text: 'New tag', color: '#5b8dee', bg: '#5b8dee18' }); renderTagsEditor(si); }
+function removeTag(si, ti) { cfg.meSections[si].tags.splice(ti, 1); renderTagsEditor(si); }
+
+function applyAndSave() {
+  cfg.siteName   = document.getElementById('cfgSiteName').value.trim();
+  cfg.storageUrl = document.getElementById('cfgStorageUrl').value.trim();
+  cfg.vmUrl      = document.getElementById('cfgVmUrl').value.trim();
+  cfg.meTitle    = document.getElementById('cfgMeTitle').value.trim();
+  const np = document.getElementById('cfgNewPass').value;
+  if (np) cfg.adminPassword = np;
+  saveConfig();
+  renderNav();
+  closeAdmin();
+}
+
+// ── Init ──
+renderNav();
+</script>
 </body>
-
 </html>
